@@ -33,29 +33,28 @@ kernely = [[-1, -2, -1],
            [0, 0, 0],
            [1, 2, 1]]
 
-
-
 # Create output image
 output_image = Image.new("RGBA", smoothed_input.size)
 
 draw = ImageDraw.Draw(output_image)
 
-full_size = (smoothed_input.width - 1) * (smoothed_input.height - 1)
+percentChange = 1.0 / (smoothed_input.width - 2) / (smoothed_input.height - 2)
+percent = 0.0
 
 # Compute convolution between intensity and kernels
 for x in range(1, smoothed_input.width - 1):
   for y in range(1, smoothed_input.height - 1):
-    percent = round(((x * smoothed_input.height - 2) + y) / full_size * 100, 2)
-    print("\r{:.2f}% complete".format(percent), end = '')
+    percent += percentChange
+    print("\r{:.2f}% complete".format(round(percent * 100, 2)), end = '')
     magx, magy = 0, 0
     for a in range(3):
-        for b in range(3):
-            xn = x + a - 1
-            yn = y + b - 1
-            magx += intensity[xn][yn] * kernelx[a][b] * SPECIAL_SAUCE
-            magy += intensity[xn][yn] * kernely[a][b] * SPECIAL_SAUCE
+      for b in range(3):
+        xn = x + a - 1
+        yn = y + b - 1
+        magx += intensity[xn][yn] * kernelx[a][b] * SPECIAL_SAUCE
+        magy += intensity[xn][yn] * kernely[a][b] * SPECIAL_SAUCE
 
-    # Cast to magnitude
+    # Create intensity magnitude
     color = int(sqrt(magx**2 + magy**2))
     draw.point((x, y), (int(RED * color), int(GREEN * color), int(BLUE * color), color))
 
